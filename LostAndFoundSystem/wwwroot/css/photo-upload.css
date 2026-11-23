@@ -1,0 +1,116 @@
+/* Photo upload component (used by Pages/Shared/_PhotoUpload.cshtml) */
+
+.photo-upload {
+  --pu-border: #ced4da;
+  --pu-accent: #0d6efd;
+  --pu-accent-soft: #eef4ff;
+}
+
+/* The real file input stays in the page (so it submits with the form) but is invisible */
+.photo-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-upload-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #6c757d;
+  background: #fafbfc;
+  border: 2px dashed var(--pu-border);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.photo-upload-drop:hover,
+.photo-upload.is-dragging .photo-upload-drop,
+.photo-upload-input:focus-visible + .photo-upload-drop {
+  color: var(--pu-accent);
+  background: var(--pu-accent-soft);
+  border-color: var(--pu-accent);
+}
+
+.photo-upload-icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 0.25rem;
+  color: var(--pu-accent);
+  background: var(--pu-accent-soft);
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+.photo-upload-drop:hover .photo-upload-icon,
+.photo-upload.is-dragging .photo-upload-icon {
+  transform: translateY(-3px);
+}
+
+.photo-upload-title {
+  font-weight: 500;
+  color: #212529;
+}
+
+.photo-upload-link {
+  color: var(--pu-accent);
+  text-decoration: underline;
+}
+
+.photo-upload-hint {
+  font-size: 0.85rem;
+}
+
+/* Preview replaces the drop area once a photo is chosen */
+.photo-upload-preview {
+  display: none;
+  overflow: hidden;
+  border: 1px solid var(--pu-border);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.photo-upload.has-photo .photo-upload-drop {
+  display: none;
+}
+
+.photo-upload.has-photo .photo-upload-preview {
+  display: block;
+}
+
+.photo-upload-preview img {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  background: #f1f3f5;
+}
+
+.photo-upload-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--pu-border);
+}
+
+.photo-upload-name {
+  overflow: hidden;
+  font-size: 0.9rem;
+  color: #495057;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-upload-error {
+  margin-top: 0.5rem;
+}

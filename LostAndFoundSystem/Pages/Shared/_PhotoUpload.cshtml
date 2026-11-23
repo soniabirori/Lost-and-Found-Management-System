@@ -1,0 +1,41 @@
+@model LostAndFoundSystem.Helpers.PhotoUploadOptions
+@using LostAndFoundSystem.Helpers
+@{
+    var inputId = "photo-input-" + Model.FieldName;
+}
+
+<link rel="stylesheet" href="~/css/photo-upload.css" asp-append-version="true" />
+
+<div class="photo-upload"
+     data-photo-upload
+     data-max-bytes="@PhotoHelper.MaxFileSizeBytes"
+     data-max-text="@(PhotoHelper.MaxFileSizeBytes / (1024 * 1024)) MB"
+     data-allowed-text="@PhotoHelper.AllowedExtensionsText">
+
+    <input type="file" id="@inputId" name="@Model.FieldName" class="photo-upload-input"
+           accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+    <label for="@inputId" class="photo-upload-drop">
+        <span class="photo-upload-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M3 16.5V18a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-1.5" />
+                <path d="M12 15V4m0 0L8 8m4-4 4 4" />
+            </svg>
+        </span>
+        <span class="photo-upload-title">Drag a photo here or <span class="photo-upload-link">browse</span></span>
+        <span class="photo-upload-hint">@PhotoHelper.AllowedExtensionsText, up to @(PhotoHelper.MaxFileSizeBytes / (1024 * 1024))&nbsp;MB</span>
+    </label>
+
+    <div class="photo-upload-preview">
+        <img alt="Selected photo preview" />
+        <div class="photo-upload-bar">
+            <span class="photo-upload-name"></span>
+            <button type="button" class="btn btn-sm btn-light photo-upload-remove">Remove</button>
+        </div>
+    </div>
+
+    <div class="photo-upload-error text-danger small" role="alert" hidden></div>
+</div>
+
+<script src="~/js/photo-upload.js" asp-append-version="true"></script>

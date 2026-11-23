@@ -480,3 +480,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Uploaded item photos (keep the folder, ignore the files)
+LostAndFoundSystem/wwwroot/uploads/items/*
+!LostAndFoundSystem/wwwroot/uploads/items/.gitkeep

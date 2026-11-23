@@ -1,0 +1,136 @@
+@page
+@using LostAndFoundSystem.Helpers
+@model LostAndFoundSystem.Pages.PhotosModel
+@{
+    ViewData["Title"] = "Photos";
+    var isLoggedIn = User.Identity?.IsAuthenticated == true;
+}
+
+<link rel="stylesheet" href="~/css/photos.css" asp-append-version="true" />
+
+<section class="photos-hero">
+    <div>
+        <h1>Photos</h1>
+        <p>Upload photos of lost and found items, and browse everything that has been shared.</p>
+    </div>
+    <div class="photos-count" aria-label="Number of photos">
+        <strong>@Model.Photos.Count</strong>
+        <span>@(Model.Photos.Count == 1 ? "photo" : "photos")</span>
+    </div>
+</section>
+
+@if (Model.SuccessMessage.Length > 0)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="status">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4 mb-5">
+    <div class="col-lg-4 col-xl-3">
+        <div class="card photos-upload-card">
+            <div class="card-body p-4">
+                <h2 class="photos-section-title">Upload a photo</h2>
+
+                @if (isLoggedIn)
+                {
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <partial name="_PhotoUpload" model="new PhotoUploadOptions()" />
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload photo</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted">Log in to add your own photos. Anyone can browse the gallery.</p>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-primary" asp-page="/Account/Login" asp-route-returnUrl="/Photos">Log in</a>
+                        <a class="btn btn-outline-secondary" asp-page="/Account/Register">Create an account</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-xl-9">
+        <h2 class="photos-section-title">Uploaded photos</h2>
+
+        @if (Model.Photos.Count == 0)
+        {
+            <div class="photos-empty">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" stroke="currentColor"
+                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <circle cx="9" cy="10" r="1.75" />
+                    <path d="m21 16-5-5-8 8" />
+                </svg>
+                <p class="fw-semibold mb-1">No photos yet</p>
+                <p class="small mb-0">Photos you upload will appear here.</p>
+            </div>
+        }
+        else
+        {
+            <div class="photo-grid">
+                @foreach (var photo in Model.Photos)
+                {
+                    var date = photo.UploadedAt.ToString("dd MMM yyyy");
+                    <figure class="photo-tile">
+                        <button type="button" class="photo-tile-open" data-bs-toggle="modal" data-bs-target="#photoViewer"
+                                data-photo="@photo.Path" data-date="@date" aria-label="View photo uploaded on @date">
+                            <img src="@photo.Path" loading="lazy" alt="Item photo uploaded on @date" />
+                        </button>
+                        <figcaption class="photo-tile-caption">
+                            <span>@date</span>
+                            @if (isLoggedIn)
+                            {
+                                <form method="post" asp-page-handler="Delete"
+                                      onsubmit="return confirm('Delete this photo? This cannot be undone.');">
+                                    <input type="hidden" name="photoPath" value="@photo.Path" />
+                                    <button type="submit" class="photo-tile-delete">Delete</button>
+                                </form>
+                            }
+                        </figcaption>
+                    </figure>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Full size viewer -->
+<div class="modal fade photo-viewer" id="photoViewer" tabindex="-1" aria-labelledby="photoViewerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <img id="photoViewerImage" src="" alt="Full size photo" />
+            <div class="modal-footer justify-content-between">
+                <span id="photoViewerLabel" class="text-muted small"></span>
+                <div>
+                    <a id="photoViewerOpen" class="btn btn-sm btn-outline-primary" href="#" target="_blank" rel="noopener">Open original</a>
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Fill the viewer with the photo that was clicked
+        document.getElementById('photoViewer').addEventListener('show.bs.modal', function (event) {
+            var tile = event.relatedTarget;
+            document.getElementById('photoViewerImage').src = tile.dataset.photo;
+            document.getElementById('photoViewerOpen').href = tile.dataset.photo;
+            document.getElementById('photoViewerLabel').textContent = 'Uploaded ' + tile.dataset.date;
+        });
+    </script>
+}
