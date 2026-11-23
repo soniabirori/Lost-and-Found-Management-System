@@ -1,0 +1,62 @@
+﻿@page
+@model LostAndFoundSystem.Pages.Items.MyReportsModel
+@{
+  
+    ViewData["Title"] = "My reports";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">My reports</h2>
+    <a class="btn btn-primary" asp-page="/Items/Report">Report an item</a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+
+@if (Model.Reports.Count == 0 && Model.ErrorMessage.Length == 0)
+{
+    <p class="text-muted">You have not reported any items yet.</p>
+}
+else if (Model.Reports.Count > 0)
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Reports)
+                {
+                    <tr>
+                        <td>
+                            <span class="badge @(r.ItemType == "Lost" ? "bg-danger" : "bg-success")">@r.ItemType</span>
+                        </td>
+                        <td>@r.Title</td>
+                        <td>@r.Category</td>
+                        <td>@r.Location</td>
+                        <td>@r.EventDate.ToString("yyyy-MM-dd")</td>
+                        <td>@r.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+

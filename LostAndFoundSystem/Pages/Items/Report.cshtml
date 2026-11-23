@@ -1,0 +1,72 @@
+﻿@page
+@model LostAndFoundSystem.Pages.Items.ReportModel
+@{
+   
+    ViewData["Title"] = "Report an item";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2 class="mb-4">Report a lost or found item</h2>
+
+        @if (Model.ErrorMessage.Length > 0)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label d-block">What happened?</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="typeLost" asp-for="ItemType" value="Lost" />
+                    <label class="form-check-label" for="typeLost">I lost something</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="typeFound" asp-for="ItemType" value="Found" />
+                    <label class="form-check-label" for="typeFound">I found something</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input class="form-control" asp-for="Title" maxlength="100" placeholder="e.g. Black iPhone 13" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" asp-for="Category">
+                    <option value="">-- Select a category --</option>
+                    @foreach (var c in LostAndFoundSystem.Pages.Items.ReportModel.Categories)
+                    {
+                        <option value="@c" selected="@(Model.Category == c)">@c</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Location</label>
+                <input class="form-control" asp-for="Location" maxlength="150" placeholder="Where was it lost or found?" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Date</label>
+                <input type="date" class="form-control" asp-for="EventDate"
+                       value="@(Model.EventDate?.ToString("yyyy-MM-dd"))"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description (optional)</label>
+                <textarea class="form-control" asp-for="Description" rows="4" maxlength="500"
+                          placeholder="Colour, brand, marks, anything that helps identify it"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit report</button>
+            <a class="btn btn-outline-secondary" href="/">Cancel</a>
+        </form>
+    </div>
+</div>
+}
