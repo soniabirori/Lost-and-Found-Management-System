@@ -1,0 +1,56 @@
+﻿@page "{id:int}"
+@model LostAndFoundSystem.Pages.Items.DetailsModel
+@{
+    ViewData["Title"] = Model.Item?.Title ?? "Item details";
+}
+
+<a asp-page="/Items/Index" class="btn btn-link px-0 mb-3">← Back to all items</a>
+
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Item != null)
+{
+    var item = Model.Item;
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            @if (!string.IsNullOrEmpty(item.PhotoPath))
+            {
+                <img src="@item.PhotoPath" alt="@item.Title" class="img-fluid rounded shadow-sm w-100"
+                     style="max-height:420px; object-fit:cover;" />
+            }
+            else
+            {
+                <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
+                     style="height:320px;">No photo provided</div>
+            }
+        </div>
+
+        <div class="col-md-6">
+            <span class="badge fs-6 @(item.ItemType == "Lost" ? "bg-danger" : "bg-success")">@item.ItemType</span>
+            <span class="badge fs-6 @(item.Status == "Returned" ? "bg-secondary" : "bg-primary")">@item.Status</span>
+
+            <h2 class="mt-3">@item.Title</h2>
+
+            <table class="table mt-3">
+                <tr><th style="width:40%">Category</th><td>@item.Category</td></tr>
+                <tr><th>Location</th><td>@item.Location</td></tr>
+                <tr><th>Date @(item.ItemType == "Lost" ? "lost" : "found")</th><td>@item.EventDate.ToString("dd MMM yyyy")</td></tr>
+                <tr><th>Reported by</th><td>@item.ReporterName</td></tr>
+                <tr><th>Reported on</th><td>@item.CreatedAt.ToString("dd MMM yyyy, HH:mm")</td></tr>
+            </table>
+
+            <h5>Description</h5>
+            <p>@(string.IsNullOrWhiteSpace(item.Description) ? "No description given." : item.Description)</p>
+
+            @if (Model.IsOwner)
+            {
+                <div class="alert alert-info">This is your report.</div>
+            }
+            <!-- "Contact owner" and "Mark as returned" will be added here in the next steps -->
+        </div>
+    </div>
+}

@@ -1,0 +1,84 @@
+﻿@page
+@model LostAndFoundSystem.Pages.Items.ReportModel
+@{
+    ViewData["Title"] = "Report an Item";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2 class="mb-4">Report an item</h2>
+
+        @if (Model.ErrorMessage.Length > 0)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @Model.ErrorMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (Model.SuccessMessage.Length > 0)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @Model.SuccessMessage
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- enctype is REQUIRED for file uploads -->
+        <form method="post" enctype="multipart/form-data">
+
+            <div class="mb-3">
+                <label class="form-label d-block">I have...</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="ItemType" value="Lost" id="typeLost" />
+                    <label class="form-check-label" for="typeLost">Lost an item</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" asp-for="ItemType" value="Found" id="typeFound" />
+                    <label class="form-check-label" for="typeFound">Found an item</label>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input class="form-control" asp-for="Title" placeholder="e.g. Black Samsung phone" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" asp-for="Category">
+                    <option value="">-- Choose a category --</option>
+                    @foreach (var c in LostAndFoundSystem.Pages.Items.ReportModel.Categories)
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description (optional)</label>
+                <textarea class="form-control" asp-for="Description" rows="3"
+                          placeholder="Colour, brand, marks, what was inside..."></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-md-7 mb-3">
+                    <label class="form-label">Location</label>
+                    <input class="form-control" asp-for="Location" placeholder="e.g. Library, 2nd floor" />
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label class="form-label">Date lost / found</label>
+                    <input type="date" class="form-control" asp-for="EventDate" asp-format="{0:yyyy-MM-dd}" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Photo (optional, max 5 MB)</label>
+                <input type="file" class="form-control" asp-for="Photo" accept="image/*" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit report</button>
+            <a class="btn btn-outline-secondary" href="/">Cancel</a>
+        </form>
+    </div>
+</div>

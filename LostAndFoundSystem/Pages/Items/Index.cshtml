@@ -1,0 +1,91 @@
+﻿@page
+@model LostAndFoundSystem.Pages.Items.IndexModel
+@{
+    ViewData["Title"] = "Browse Items";
+}
+
+<h2 class="mb-3">Browse lost & found items</h2>
+
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<!-- Search & filter form (GET so filters appear in the URL) -->
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input class="form-control" asp-for="Search" placeholder="Search title, description, location..." />
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" asp-for="Type">
+            <option value="">All types</option>
+            <option value="Lost">Lost</option>
+            <option value="Found">Found</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" asp-for="Category">
+            <option value="">All categories</option>
+            @foreach (var c in LostAndFoundSystem.Pages.Items.ReportModel.Categories)
+            {
+                <option value="@c">@c</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select class="form-select" asp-for="Status">
+            <option value="Open">Open</option>
+            <option value="Returned">Returned</option>
+            <option value="All">All</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">Search</button>
+        <a asp-page="/Items/Index" class="btn btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
+<p class="text-muted">Showing @Model.Items.Count item(s)</p>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="alert alert-info">No items match your search.</div>
+}
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+    @foreach (var item in Model.Items)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(item.PhotoPath))
+                {
+                    <img src="@item.PhotoPath" class="card-img-top" alt="@item.Title"
+                         style="height:200px; object-fit:cover;" />
+                }
+                else
+                {
+                    <div class="bg-light d-flex align-items-center justify-content-center text-muted"
+                         style="height:200px;">No photo</div>
+                }
+
+                <div class="card-body">
+                    <span class="badge @(item.ItemType == "Lost" ? "bg-danger" : "bg-success")">@item.ItemType</span>
+                    @if (item.Status == "Returned")
+                    {
+                        <span class="badge bg-secondary">Returned</span>
+                    }
+                    <span class="badge bg-light text-dark border">@item.Category</span>
+
+                    <h5 class="card-title mt-2">@item.Title</h5>
+                    <p class="card-text small text-muted mb-1">📍 @item.Location</p>
+                    <p class="card-text small text-muted">📅 @item.EventDate.ToString("dd MMM yyyy")</p>
+                </div>
+
+                <div class="card-footer bg-white border-0 pb-3">
+                    <a asp-page="/Items/Details" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-primary w-100">View details</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
