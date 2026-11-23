@@ -38,6 +38,9 @@
 						@if (User.Identity?.IsAuthenticated == true)
 						{
 							<li class="nav-item">
+								<a class="nav-link text-dark" asp-page="/Items/MyReports">My Reports</a>
+							</li>
+							<li class="nav-item">
 								<span class="nav-link text-dark">Hello, @User.Identity.Name</span>
 							</li>
 							<li class="nav-item">
