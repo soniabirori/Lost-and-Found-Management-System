@@ -169,13 +169,11 @@ LostAndFoundSystem/
 
 ## 👥 Team
 
-| Member | Area |
-|---|---|
-| [Name] (Team leader) | Architecture & security |
-| [Name] | Database design |
-| [Name] | Accounts & reporting items |
-| [Name] | Browse, search & home page |
-| [Name] | Messages & My Reports |
+- BIRORI Sonia
+- NSHUTI Tricia
+- MAYANJA Leon
+- SEBERA Ange Thressy
+- IRASUBIZA Mariam
 
 ---
 
