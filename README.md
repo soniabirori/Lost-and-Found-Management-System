@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/35424307/README.md)
 **Lost and Found Management System**
 
 Description
