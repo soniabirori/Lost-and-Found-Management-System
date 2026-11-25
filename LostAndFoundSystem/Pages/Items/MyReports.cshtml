@@ -1,7 +1,6 @@
 ﻿@page
 @model LostAndFoundSystem.Pages.Items.MyReportsModel
 @{
-  
     ViewData["Title"] = "My reports";
 }
 
@@ -33,12 +32,14 @@ else if (Model.Reports.Count > 0)
         <table class="table table-striped align-middle">
             <thead>
                 <tr>
+                    <th>Photo</th>
                     <th>Type</th>
                     <th>Title</th>
                     <th>Category</th>
                     <th>Location</th>
                     <th>Date</th>
                     <th>Status</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -46,17 +47,52 @@ else if (Model.Reports.Count > 0)
                 {
                     <tr>
                         <td>
+                            @if (!string.IsNullOrEmpty(r.PhotoPath))
+                            {
+                                <img src="@r.PhotoPath" alt="@r.Title" class="rounded"
+                                     style="width:60px; height:60px; object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <span class="text-muted small">No photo</span>
+                            }
+                        </td>
+                        <td>
                             <span class="badge @(r.ItemType == "Lost" ? "bg-danger" : "bg-success")">@r.ItemType</span>
                         </td>
                         <td>@r.Title</td>
                         <td>@r.Category</td>
                         <td>@r.Location</td>
                         <td>@r.EventDate.ToString("yyyy-MM-dd")</td>
-                        <td>@r.Status</td>
+                        <td>
+                            <span class="badge @(r.Status == "Returned" ? "bg-secondary" : "bg-primary")">@r.Status</span>
+                        </td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="/Items/Details" asp-route-id="@r.Id">View</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="/Items/Edit" asp-route-id="@r.Id">Edit</a>
+
+                            @if (r.Status == "Open")
+                            {
+                                <form method="post" asp-page-handler="MarkReturned" asp-route-id="@r.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success"
+                                            onclick="return confirm('Mark this item as returned?');">Mark returned</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Reopen" asp-route-id="@r.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">Reopen</button>
+                                </form>
+                            }
+
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@r.Id" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('Delete this report permanently? Messages about it will also be deleted.');">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
 }
-

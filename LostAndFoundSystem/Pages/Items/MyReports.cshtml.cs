@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using LostAndFoundSystem.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,10 +11,12 @@ namespace LostAndFoundSystem.Pages.Items
     public class MyReportsModel : PageModel
     {
         private readonly string _connectionString;
+        private readonly IWebHostEnvironment _env;
 
-        public MyReportsModel(IConfiguration config)
+        public MyReportsModel(IConfiguration config, IWebHostEnvironment env)
         {
             _connectionString = config.GetConnectionString("LostAndFoundDB")!;
+            _env = env;
         }
 
         // One row of the table on the page
@@ -26,7 +29,7 @@ namespace LostAndFoundSystem.Pages.Items
             public string Location { get; set; } = "";
             public DateTime EventDate { get; set; }
             public string Status { get; set; } = "";
-            public string? PhotoPath { get; set; }   // filled in by the Photo Upload module
+            public string? PhotoPath { get; set; }
         }
 
         public List<ReportRow> Reports { get; set; } = new();
@@ -36,8 +39,127 @@ namespace LostAndFoundSystem.Pages.Items
 
         public void OnGet()
         {
+            LoadReports();
+        }
+
+        // "Mark returned" button
+        public IActionResult OnPostMarkReturned(int id)
+        {
+            return SetStatus(id, "Returned", "Item marked as returned. 🎉");
+        }
+
+        // "Reopen" button (in case it was marked returned by mistake)
+        public IActionResult OnPostReopen(int id)
+        {
+            return SetStatus(id, "Open", "Item reopened.");
+        }
+
+        // "Delete" button
+        public IActionResult OnPostDelete(int id)
+        {
+            int? userId = GetUserId();
+            if (userId == null) return RedirectToPage("/Account/Login");
+
+            string? photoPath;
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+
+                // 1. Make sure the item exists AND belongs to this user; get its photo
+                using (var find = new SqlCommand("SELECT PhotoPath FROM Items WHERE Id = @Id AND UserId = @UserId", connection))
+                {
+                    find.Parameters.AddWithValue("@Id", id);
+                    find.Parameters.AddWithValue("@UserId", userId);
+                    object? result = find.ExecuteScalar();
+                    if (result == null)
+                    {
+                        ErrorMessage = "Item not found.";
+                        LoadReports();
+                        return Page();
+                    }
+                    photoPath = result as string; // null if the item had no photo
+                }
+
+                // 2. Delete its messages first (they point to the item), then the item
+                using var transaction = connection.BeginTransaction();
+
+                using (var deleteMessages = new SqlCommand("DELETE FROM Messages WHERE ItemId = @Id", connection, transaction))
+                {
+                    deleteMessages.Parameters.AddWithValue("@Id", id);
+                    deleteMessages.ExecuteNonQuery();
+                }
+                using (var deleteItem = new SqlCommand("DELETE FROM Items WHERE Id = @Id AND UserId = @UserId", connection, transaction))
+                {
+                    deleteItem.Parameters.AddWithValue("@Id", id);
+                    deleteItem.Parameters.AddWithValue("@UserId", userId);
+                    deleteItem.ExecuteNonQuery();
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                LoadReports();
+                return Page();
+            }
+
+            // 3. Remove the photo file from the uploads folder
+            PhotoHelper.Delete(photoPath, _env.WebRootPath);
+
+            SuccessMessage = "Report deleted.";
+            return RedirectToPage();
+        }
+
+        // ---------- helpers ----------
+
+        private int? GetUserId()
+        {
             var userIdText = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdText, out int userId))
+            return int.TryParse(userIdText, out int userId) ? userId : null;
+        }
+
+        private IActionResult SetStatus(int id, string status, string successText)
+        {
+            int? userId = GetUserId();
+            if (userId == null) return RedirectToPage("/Account/Login");
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                connection.Open();
+
+                // "AND UserId" makes sure people can only change their own items
+                string sql = "UPDATE Items SET Status = @Status WHERE Id = @Id AND UserId = @UserId";
+                using var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@Status", status);
+                command.Parameters.AddWithValue("@Id", id);
+                command.Parameters.AddWithValue("@UserId", userId);
+
+                if (command.ExecuteNonQuery() == 0)
+                {
+                    ErrorMessage = "Item not found.";
+                    LoadReports();
+                    return Page();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                LoadReports();
+                return Page();
+            }
+
+            SuccessMessage = successText;
+            return RedirectToPage();
+        }
+
+        private void LoadReports()
+        {
+            int? userId = GetUserId();
+            if (userId == null)
             {
                 ErrorMessage = "Could not identify your account. Please log in again.";
                 return;
