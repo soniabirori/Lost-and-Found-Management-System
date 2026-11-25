@@ -1,0 +1,70 @@
+﻿@page
+@model LostAndFoundSystem.Pages.Messages.IndexModel
+@{
+    ViewData["Title"] = "My Messages";
+}
+
+<h2 class="mb-3">My messages</h2>
+
+@if (Model.ErrorMessage.Length > 0)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (Model.MessageList.Count == 0)
+{
+    <div class="alert alert-info">
+        No messages yet. Open an item in <a asp-page="/Items/Index">Browse Items</a> to contact its owner.
+    </div>
+}
+
+@foreach (var m in Model.MessageList)
+{
+    <div class="card mb-3 shadow-sm @(m.IsIncoming ? "border-primary" : "")">
+        <div class="card-body">
+            <div class="d-flex justify-content-between flex-wrap">
+                <div>
+                    <span class="badge @(m.IsIncoming ? "bg-primary" : "bg-secondary")">
+                        @(m.IsIncoming ? "Received" : "Sent")
+                    </span>
+                    <strong class="ms-1">@(m.IsIncoming ? "From" : "To"): @m.OtherName</strong>
+                </div>
+                <small class="text-muted">@m.SentAt.ToString("dd MMM yyyy, HH:mm")</small>
+            </div>
+
+            <p class="small text-muted mb-2 mt-1">
+                About:
+                <a asp-page="/Items/Details" asp-route-id="@m.ItemId">@m.ItemTitle</a>
+                (@m.ItemType)
+            </p>
+
+            <p class="mb-2">@m.Body</p>
+
+            <p class="small text-muted mb-2">
+                ✉️ @m.OtherEmail
+                @if (!string.IsNullOrEmpty(m.OtherPhone))
+                {
+                    <span class="ms-2">📞 @m.OtherPhone</span>
+                }
+            </p>
+
+            @if (m.IsIncoming)
+            {
+                <form method="post" asp-page-handler="Reply" class="d-flex gap-2">
+                    <input type="hidden" name="ReplyItemId" value="@m.ItemId" />
+                    <input type="hidden" name="ReplyToUserId" value="@m.OtherUserId" />
+                    <input type="text" name="ReplyBody" class="form-control form-control-sm"
+                           maxlength="1000" placeholder="Write a reply..." />
+                    <button type="submit" class="btn btn-sm btn-primary">Reply</button>
+                </form>
+            }
+        </div>
+    </div>
+}

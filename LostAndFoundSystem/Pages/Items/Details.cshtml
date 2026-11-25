@@ -8,7 +8,17 @@
 
 @if (Model.ErrorMessage.Length > 0)
 {
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
 @if (Model.Item != null)
@@ -46,11 +56,39 @@
             <h5>Description</h5>
             <p>@(string.IsNullOrWhiteSpace(item.Description) ? "No description given." : item.Description)</p>
 
+            <!-- Contact section -->
             @if (Model.IsOwner)
             {
-                <div class="alert alert-info">This is your report.</div>
+                <div class="alert alert-info">
+                    This is your report. Manage it in <a asp-page="/Items/MyReports">My Reports</a>.
+                </div>
             }
-            <!-- "Contact owner" and "Mark as returned" will be added here in the next steps -->
+            else if (item.Status == "Returned")
+            {
+                <div class="alert alert-secondary">This item has already been returned.</div>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            @(item.ItemType == "Lost" ? "Found this item? Contact the owner" : "Is this yours? Contact the finder")
+                        </h5>
+                        <form method="post" asp-page-handler="SendMessage" asp-route-id="@item.Id">
+                            <textarea class="form-control mb-2" asp-for="MessageBody" rows="3" maxlength="1000"
+                                      placeholder="Describe the item or say where you can meet..."></textarea>
+                            <button type="submit" class="btn btn-primary">Send message</button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-light border">
+                    <a asp-page="/Account/Login" asp-route-returnUrl="/Items/Details/@item.Id">Log in</a>
+                    to contact the @(item.ItemType == "Lost" ? "owner" : "finder").
+                </div>
+            }
         </div>
     </div>
 }
