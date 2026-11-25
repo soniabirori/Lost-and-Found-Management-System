@@ -1,10 +1,238 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- ============ HERO ============ -->
+<section class="hero mb-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+            <span class="eyebrow"><i class="bi bi-stars"></i> Your community lost & found</span>
+            <h1 class="mt-4 mb-3">Lost something?<br /><span class="soft">Let's bring it back.</span></h1>
+            <p class="lead text-muted mb-4" style="max-width: 520px;">
+                Report lost or found items in seconds, search what others have posted,
+                and message the owner directly, all in one place.
+            </p>
+
+            <form method="get" asp-page="/Items/Index" class="hero-search mb-4">
+                <i class="bi bi-search ms-3 text-muted align-self-center"></i>
+                <input type="text" name="Search" placeholder="Search for a phone, wallet, keys..." aria-label="Search items" />
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-primary btn-lg" asp-page="/Items/Report" asp-route-ItemType="Lost">
+                    <i class="bi bi-exclamation-circle me-1"></i> I lost something
+                </a>
+                <a class="btn btn-outline-primary btn-lg" asp-page="/Items/Report" asp-route-ItemType="Found">
+                    <i class="bi bi-hand-thumbs-up me-1"></i> I found something
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#E6F2EA; color:var(--found);"><i class="bi bi-arrow-repeat"></i></div>
+                        <div class="stat-number">@Model.Returned</div>
+                        <div class="stat-label">Items reunited</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#FBEAE5; color:var(--lost);"><i class="bi bi-search"></i></div>
+                        <div class="stat-number">@Model.OpenLost</div>
+                        <div class="stat-label">Still being searched for</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:var(--brand-soft); color:var(--brand);"><i class="bi bi-box-seam"></i></div>
+                        <div class="stat-number">@Model.OpenFound</div>
+                        <div class="stat-label">Found, waiting for owners</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#FFF4DB; color:#9A6B12;"><i class="bi bi-people"></i></div>
+                        <div class="stat-number">@Model.Members</div>
+                        <div class="stat-label">Community members</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="mb-5 py-4">
+    <div class="text-center mb-5">
+        <span class="section-kicker">How it works</span>
+        <h2 class="section-title">Three steps to a happy reunion</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="step-card">
+                <div class="step-num"><i class="bi bi-megaphone"></i></div>
+                <h5>1. Report it</h5>
+                <p class="text-muted mb-0">Post a lost or found item with a photo, where it happened and when. It takes less than a minute.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step-card">
+                <div class="step-num"><i class="bi bi-chat-heart"></i></div>
+                <h5>2. Connect</h5>
+                <p class="text-muted mb-0">Search and filter reports, then privately message the owner or finder right from the item page.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step-card">
+                <div class="step-num"><i class="bi bi-house-heart"></i></div>
+                <h5>3. Reunite</h5>
+                <p class="text-muted mb-0">Meet up, hand it back, and mark the item as returned so everyone knows it's found its way home.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ RECENT ITEMS ============ -->
+<section class="mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <span class="section-kicker">Latest reports</span>
+            <h2 class="section-title mb-0">Recently posted</h2>
+        </div>
+        <a asp-page="/Items/Index" class="btn btn-outline-primary">View all items <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    @if (Model.RecentItems.Count == 0)
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            No items reported yet. Be the first to post one!
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+            @foreach (var item in Model.RecentItems)
+            {
+                <div class="col"><partial name="_ItemCard" model="item" /></div>
+            }
+        </div>
+    }
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq-section mb-5">
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <h2 class="section-title mb-1">Still have questions?</h2>
+            <h2 class="section-title soft mb-4">We've got answers</h2>
+            <a asp-page="/Items/Index" class="btn btn-primary mb-3">Browse items</a>
+            @if (User.Identity?.IsAuthenticated != true)
+            {
+                <p class="small text-muted mb-0">New here? <a asp-page="/Account/Register">Create a free account</a></p>
+            }
+        </div>
+        <div class="col-lg-7">
+            <div class="accordion" id="faq">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            How do I report a lost item?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faq">
+                        <div class="accordion-body">
+                            Create a free account, click <strong>Report Lost</strong> and fill in the title, category,
+                            location and date. Adding a photo makes it much easier for others to recognise your item.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            I found something. What should I do?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faq">
+                        <div class="accordion-body">
+                            Click <strong>Report Found</strong> and say where you found it. Tip: leave out one unique detail
+                            (like a sticker or serial number) so you can ask the real owner to confirm it's theirs.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Who can see my email and phone number?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faq">
+                        <div class="accordion-body">
+                            Your contact details are never shown on item pages. They're only visible to the people
+                            you exchange messages with, inside <strong>My Messages</strong>.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            What happens when an item is returned?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faq">
+                        <div class="accordion-body">
+                            Open <strong>My Reports</strong> and click <strong>Mark returned</strong>. The item is hidden from
+                            the default search results and nobody can send new messages about it.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            Can I edit or delete my report?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faq">
+                        <div class="accordion-body">
+                            Yes. In <strong>My Reports</strong> you can edit any detail, replace the photo, or delete the
+                            report completely.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ CALL TO ACTION ============ -->
+<section class="cta-band">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <h2 class="mb-2">Found something today?</h2>
+                <p class="mb-0 opacity-75">Post it in under a minute. Someone out there is looking for it.</p>
+            }
+            else
+            {
+                <h2 class="mb-2">Join our lost & found community</h2>
+                <p class="mb-0 opacity-75">Create a free account to report items and contact owners.</p>
+            }
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="btn btn-light btn-lg" asp-page="/Items/Report" asp-route-ItemType="Found">Report a found item</a>
+            }
+            else
+            {
+                <a class="btn btn-light btn-lg" asp-page="/Account/Register">Get started, it's free</a>
+            }
+        </div>
+    </div>
+</section>

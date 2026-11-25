@@ -1,0 +1,27 @@
+﻿@model LostAndFoundSystem.Models.ItemInfo
+
+<a asp-page="/Items/Details" asp-route-id="@Model.Id" class="item-card card h-100 text-decoration-none text-reset">
+    <div class="item-card-img">
+        @if (!string.IsNullOrEmpty(Model.PhotoPath))
+        {
+            <img src="@Model.PhotoPath" alt="@Model.Title" loading="lazy" />
+        }
+        else
+        {
+            <div class="item-card-placeholder"><i class="bi bi-image"></i></div>
+        }
+        <span class="item-type-badge @(Model.ItemType == "Lost" ? "lost" : "found")">@Model.ItemType</span>
+        @if (Model.Status == "Returned")
+        {
+            <span class="item-status-badge"><i class="bi bi-check2-circle me-1"></i>Returned</span>
+        }
+    </div>
+    <div class="card-body p-4">
+        <div class="item-category mb-1">@Model.Category</div>
+        <h5 class="mb-3">@Model.Title</h5>
+        <div class="item-meta">
+            <span><i class="bi bi-geo-alt me-1"></i>@Model.Location</span>
+            <span><i class="bi bi-calendar3 me-1"></i>@Model.EventDate.ToString("dd MMM yyyy")</span>
+        </div>
+    </div>
+</a>

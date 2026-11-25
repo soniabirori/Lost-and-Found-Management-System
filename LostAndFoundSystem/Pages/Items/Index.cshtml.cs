@@ -15,7 +15,6 @@ namespace LostAndFoundSystem.Pages.Items
             _connectionString = config.GetConnectionString("LostAndFoundDB")!;
         }
 
-        // Filters come from the URL, e.g. /Items?Search=phone&Type=Lost
         [BindProperty(SupportsGet = true)] public string? Search { get; set; }
         [BindProperty(SupportsGet = true)] public string? Type { get; set; }
         [BindProperty(SupportsGet = true)] public string? Category { get; set; }
@@ -26,7 +25,7 @@ namespace LostAndFoundSystem.Pages.Items
 
         public void OnGet()
         {
-            Status ??= "Open"; // by default, hide items already returned
+            Status ??= "Open";
 
             try
             {
@@ -36,7 +35,6 @@ namespace LostAndFoundSystem.Pages.Items
                 using var command = new SqlCommand();
                 command.Connection = connection;
 
-                // Build the query step by step, only adding the filters the user chose
                 var sql = new StringBuilder(ItemInfo.SelectSql + " WHERE 1 = 1");
 
                 if (!string.IsNullOrWhiteSpace(Search))
@@ -60,7 +58,7 @@ namespace LostAndFoundSystem.Pages.Items
                     command.Parameters.AddWithValue("@Status", Status);
                 }
 
-                sql.Append(" ORDER BY i.CreatedAt DESC"); // newest first
+                sql.Append(" ORDER BY i.CreatedAt DESC");
                 command.CommandText = sql.ToString();
 
                 using var reader = command.ExecuteReader();

@@ -71,24 +71,33 @@ else if (Model.Reports.Count > 0)
                             <a class="btn btn-sm btn-outline-primary" asp-page="/Items/Details" asp-route-id="@r.Id">View</a>
                             <a class="btn btn-sm btn-outline-secondary" asp-page="/Items/Edit" asp-route-id="@r.Id">Edit</a>
 
-                            @if (r.Status == "Open")
-                            {
-                                <form method="post" asp-page-handler="MarkReturned" asp-route-id="@r.Id" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-success"
-                                            onclick="return confirm('Mark this item as returned?');">Mark returned</button>
-                                </form>
-                            }
-                            else
-                            {
-                                <form method="post" asp-page-handler="Reopen" asp-route-id="@r.Id" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-warning">Reopen</button>
-                                </form>
-                            }
+                          @if (r.Status == "Open")
+{
+    <form method="post" asp-page-handler="MarkReturned" asp-route-id="@r.Id" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-success"
+                data-confirm="'@r.Title' will be marked as returned and hidden from the default search results."
+                data-confirm-title="Mark as returned?"
+                data-confirm-ok="Yes, it's returned"
+                data-confirm-variant="success">Mark returned</button>
+    </form>
+}
+else
+{
+    <form method="post" asp-page-handler="Reopen" asp-route-id="@r.Id" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-outline-warning"
+                data-confirm="'@r.Title' will be visible again and people can contact you about it."
+                data-confirm-title="Reopen this item?"
+                data-confirm-ok="Reopen">Reopen</button>
+    </form>
+}
 
-                            <form method="post" asp-page-handler="Delete" asp-route-id="@r.Id" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Delete this report permanently? Messages about it will also be deleted.');">Delete</button>
-                            </form>
+<form method="post" asp-page-handler="Delete" asp-route-id="@r.Id" class="d-inline">
+    <button type="submit" class="btn btn-sm btn-danger"
+            data-confirm="'@r.Title' and all messages about it will be permanently deleted. This can't be undone."
+            data-confirm-title="Delete this report?"
+            data-confirm-ok="Delete"
+            data-confirm-variant="danger">Delete</button>
+</form>
                         </td>
                     </tr>
                 }
